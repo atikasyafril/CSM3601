@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Predict — Heart Disease Risk</title>
+  <%- include('partials/head') %>
+</head>
+<body class="min-h-screen flex flex-col">
+  <%- include('partials/header') %>
+
+  <main class="flex-1 max-w-4xl w-full mx-auto px-6 py-8">
+
+    <div class="card bg-white shadow-xl border-t-4 border-[var(--maroon)]">
+      <div class="card-body">
+        <h2 class="card-title text-[var(--navy)] border-l-4 border-[var(--maroon)] pl-3">
+          Patient Information
+        </h2>
+
+        <% if (!modelLoaded) { %>
+          <div role="alert" class="alert alert-warning mt-2">
+            <span>⚠️ No trained model found. Run <code>python train_model.py</code> inside the <code>python/</code> folder first, then restart this app.</span>
+          </div>
+        <% } %>
+
+        <% if (error) { %>
+          <div role="alert" class="alert alert-error mt-2">
+            <span><%= error %></span>
+          </div>
+        <% } %>
+
+        <form action="/predict" method="POST" class="mt-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <% fieldOrder.forEach(function(field) { %>
+              <div class="form-control">
+                <label class="label" for="<%= field %>">
+                  <span class="label-text font-semibold text-[var(--navy-light)]"><%= fieldLabels[field] %></span>
+                </label>
+
+                <% if (fieldOptions[field]) { %>
+                  <select name="<%= field %>" id="<%= field %>" required
+                    class="select select-bordered w-full focus:border-[var(--maroon)]">
+                    <option value="" disabled selected>Select...</option>
+                    <% fieldOptions[field].forEach(function(opt) { %>
+                      <option value="<%= opt[0] %>"><%= opt[1] %></option>
+                    <% }) %>
+                  </select>
+                <% } else { %>
+                  <input type="number" step="any" name="<%= field %>" id="<%= field %>" required
+                    placeholder="e.g. <%= field === 'trestbps' ? '120' : field === 'chol' ? '200' : field === 'oldpeak' ? '1.0' : field === 'age' ? '54' : '150' %>"
+                    class="input input-bordered w-full focus:border-[var(--maroon)]">
+                <% } %>
+              </div>
+            <% }) %>
+          </div>
+
+          <div class="mt-8 text-right">
+            <button type="submit" class="btn text-white border-none"
+              style="background-color: var(--maroon);"
+              <%= modelLoaded ? '' : 'disabled' %>>
+              Predict Risk
+            </button>
+          </div>
+        </form>
+
+        <p class="text-xs text-gray-500 mt-6 border-t border-dashed pt-3">
+          This tool is built for academic demonstration using the Cleveland Heart Disease dataset.
+          It is not a substitute for professional medical advice.
+        </p>
+      </div>
+    </div>
+
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

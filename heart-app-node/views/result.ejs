@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Prediction Result</title>
+  <%- include('partials/head') %>
+</head>
+<body class="min-h-screen flex flex-col">
+  <%- include('partials/header') %>
+
+  <main class="flex-1 max-w-4xl w-full mx-auto px-6 py-8 space-y-6">
+
+    <div class="card bg-white shadow-xl border-t-4 border-[var(--maroon)]">
+      <div class="card-body">
+        <h2 class="card-title text-[var(--navy)] border-l-4 border-[var(--maroon)] pl-3">
+          Prediction Result
+        </h2>
+
+        <% if (prediction === 1) { %>
+          <div class="rounded-xl border-2 border-error bg-red-50 text-center py-8 mt-4">
+            <div class="text-4xl">⚠️</div>
+            <div class="text-2xl font-extrabold text-error mt-2">High Risk of Heart Disease</div>
+            <div class="text-gray-600 mt-1">Estimated probability: <strong><%= probability %>%</strong></div>
+          </div>
+        <% } else { %>
+          <div class="rounded-xl border-2 border-success bg-green-50 text-center py-8 mt-4">
+            <div class="text-4xl">✅</div>
+            <div class="text-2xl font-extrabold text-success mt-2">Low Risk of Heart Disease</div>
+            <div class="text-gray-600 mt-1">Estimated probability: <strong><%= probability %>%</strong></div>
+          </div>
+        <% } %>
+
+        <p class="text-xs text-gray-500 mt-5">
+          Predicted using model:
+          <span class="badge text-white" style="background-color: var(--navy);"><%= modelName %></span><br>
+          This is a statistical estimate based on the Cleveland Heart Disease dataset and should not
+          be used for actual medical diagnosis. Please consult a qualified healthcare professional.
+        </p>
+      </div>
+    </div>
+
+    <div class="card bg-white shadow-xl border-t-4 border-[var(--navy)]">
+      <div class="card-body">
+        <h2 class="card-title text-[var(--navy)] border-l-4 border-[var(--maroon)] pl-3">
+          Submitted Patient Data
+        </h2>
+        <div class="overflow-x-auto mt-2">
+          <table class="table">
+            <thead>
+              <tr class="text-white" style="background-color: var(--navy);">
+                <th>Field</th><th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% Object.keys(fieldLabels).forEach(function(field) { %>
+                <tr>
+                  <td><%= fieldLabels[field] %></td>
+                  <td><%= values[field] %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-right">
+      <a href="/" class="btn text-white border-none" style="background-color: var(--navy);">
+        ← Make Another Prediction
+      </a>
+    </div>
+
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

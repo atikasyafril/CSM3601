@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Model Info</title>
+  <%- include('partials/head') %>
+</head>
+<body class="min-h-screen flex flex-col">
+  <%- include('partials/header') %>
+
+  <main class="flex-1 max-w-4xl w-full mx-auto px-6 py-8 space-y-6">
+
+    <div class="card bg-white shadow-xl border-t-4 border-[var(--maroon)]">
+      <div class="card-body">
+        <h2 class="card-title text-[var(--navy)] border-l-4 border-[var(--maroon)] pl-3">
+          About This Project
+        </h2>
+        <p class="text-gray-700 mt-2">
+          This web application demonstrates the <strong>CSM3601 — Heart Disease Prediction</strong>
+          machine learning project. It uses the UCI Cleveland Heart Disease dataset (303 patients,
+          13 clinical features) and the same data cleaning, outlier-capping, one-hot encoding,
+          Min-Max scaling, and feature selection (SelectKBest) pipeline developed in Phase 2 (EDA &amp;
+          Data Preparation) of the project.
+        </p>
+        <p class="text-gray-700 mt-2">
+          Three classification algorithms were trained and compared: <strong>Logistic Regression</strong>,
+          <strong>Random Forest</strong>, and <strong>SVM (RBF kernel)</strong>, using a stratified
+          80/20 train-test split and 5-fold cross-validation. <strong>Logistic Regression</strong> was selected
+          for deployment because its underlying math relies only on feature scaling, one-hot encoding, a linear weighted sum, 
+          and a sigmoid function, the website can calculate predictions natively and instantly. 
+          This completely eliminates the need for heavy external machine learning libraries or runtime dependencies.
+        </p>
+        <% if (selectedFeatures && selectedFeatures.length) { %>
+          <p class="text-gray-700 mt-2">
+            Top features selected by SelectKBest and used by the deployed model:
+            <span class="font-mono text-sm"><%= selectedFeatures.join(', ') %></span>
+          </p>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="card bg-white shadow-xl border-t-4 border-[var(--navy)]">
+      <div class="card-body">
+        <h2 class="card-title text-[var(--navy)] border-l-4 border-[var(--maroon)] pl-3">
+          Model Comparison Results
+          <span class="badge text-white ml-2" style="background-color: var(--navy);">Deployed: <%= modelName %></span>
+        </h2>
+
+        <% if (metrics && metrics.length) { %>
+          <div class="overflow-x-auto mt-3">
+            <table class="table">
+              <thead>
+                <tr class="text-white" style="background-color: var(--navy);">
+                  <th>Model</th>
+                  <th>CV Accuracy</th>
+                  <th>Test Accuracy</th>
+                  <th>Precision</th>
+                  <th>Recall</th>
+                  <th>F1-score</th>
+                  <th>ROC-AUC</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% metrics.forEach(function(row) { %>
+                  <tr>
+                    <td class="font-semibold"><%= row.model %></td>
+                    <td><%= row.cv_accuracy %></td>
+                    <td><%= row.test_accuracy %></td>
+                    <td><%= row.precision %></td>
+                    <td><%= row.recall %></td>
+                    <td><%= row.f1_score %></td>
+                    <td><%= row.roc_auc %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div role="alert" class="alert alert-warning mt-2">
+            <span>No metrics available yet — run <code>python train_model.py</code> first.</span>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,199 @@
+{
+  "model_name": "Logistic Regression",
+  "feature_order_raw": [
+    "age",
+    "sex",
+    "cp",
+    "trestbps",
+    "chol",
+    "fbs",
+    "restecg",
+    "thalach",
+    "exang",
+    "oldpeak",
+    "slope",
+    "ca",
+    "thal"
+  ],
+  "numeric_cols": [
+    "age",
+    "trestbps",
+    "chol",
+    "thalach",
+    "oldpeak"
+  ],
+  "scaler": {
+    "data_min": [
+      29.0,
+      94.0,
+      126.0,
+      84.75,
+      0.0
+    ],
+    "data_max": [
+      77.0,
+      170.0,
+      371.0,
+      202.0,
+      4.0
+    ]
+  },
+  "categorical_cols": [
+    "cp",
+    "restecg",
+    "slope",
+    "thal"
+  ],
+  "categories": [
+    {
+      "column": "cp",
+      "all_categories": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "kept_categories": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "column": "restecg",
+      "all_categories": [
+        "0",
+        "1",
+        "2"
+      ],
+      "kept_categories": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "column": "slope",
+      "all_categories": [
+        "0",
+        "1",
+        "2"
+      ],
+      "kept_categories": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "column": "thal",
+      "all_categories": [
+        "1",
+        "2",
+        "3"
+      ],
+      "kept_categories": [
+        "2",
+        "3"
+      ]
+    }
+  ],
+  "passthrough_cols": [
+    "sex",
+    "fbs",
+    "exang",
+    "ca"
+  ],
+  "encoded_feature_names": [
+    "age",
+    "trestbps",
+    "chol",
+    "thalach",
+    "oldpeak",
+    "cp_1",
+    "cp_2",
+    "cp_3",
+    "restecg_1",
+    "restecg_2",
+    "slope_1",
+    "slope_2",
+    "thal_2",
+    "thal_3",
+    "sex",
+    "fbs",
+    "exang",
+    "ca"
+  ],
+  "selected_feature_names": [
+    "thalach",
+    "oldpeak",
+    "cp_1",
+    "cp_2",
+    "cp_3",
+    "slope_1",
+    "thal_3",
+    "sex",
+    "exang",
+    "ca"
+  ],
+  "selected_mask": [
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
+    true,
+    false,
+    false,
+    true,
+    true,
+    false,
+    true,
+    true
+  ],
+  "coefficients": [
+    -0.7619904363001773,
+    0.6820140087976473,
+    0.302010052545944,
+    -0.23162635018527228,
+    1.1794838069129754,
+    1.0186440051520909,
+    1.3952031448341138,
+    1.1380341125374824,
+    0.6621425294138773,
+    1.1915320950119268
+  ],
+  "intercept": -3.1494128809403477,
+  "metrics_all_models": [
+    {
+      "model": "SVM (RBF)",
+      "cv_accuracy": 0.814,
+      "test_accuracy": 0.8361,
+      "precision": 0.8462,
+      "recall": 0.7857,
+      "f1_score": 0.8148,
+      "roc_auc": 0.9578
+    },
+    {
+      "model": "Random Forest",
+      "cv_accuracy": 0.8222,
+      "test_accuracy": 0.8361,
+      "precision": 0.8462,
+      "recall": 0.7857,
+      "f1_score": 0.8148,
+      "roc_auc": 0.9524
+    },
+    {
+      "model": "Logistic Regression",
+      "cv_accuracy": 0.8388,
+      "test_accuracy": 0.8689,
+      "precision": 0.8333,
+      "recall": 0.8929,
+      "f1_score": 0.8621,
+      "roc_auc": 0.9437
+    }
+  ]
+}
