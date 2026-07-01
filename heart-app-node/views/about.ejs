@@ -27,7 +27,7 @@
           80/20 train-test split and 5-fold cross-validation. <strong>Random Forest was selected as the deployed model</strong> because it achieved
           the highest ROC-AUC score of <strong>0.96</strong> and the highest test accuracy of
           <strong>88.52%</strong> among all three models. Random Forest also demonstrated superior
-          precision (88.89%), meaning it produces fewer false positives — a critical quality for
+          precision (88.89%), meaning it produces fewer false positives which is a critical quality for
           medical screening tools where incorrectly flagging a healthy patient as high-risk causes
           unnecessary anxiety and follow-up costs. As an ensemble of 100 decision trees, it is
           inherently more robust to overfitting than a single Decision Tree, and more capable of
@@ -56,7 +56,6 @@
               <thead>
                 <tr class="text-white" style="background-color: var(--navy);">
                   <th>Model</th>
-                  <th>CV Accuracy</th>
                   <th>Test Accuracy</th>
                   <th>Precision</th>
                   <th>Recall</th>
@@ -68,7 +67,6 @@
                 <% metrics.forEach(function(row) { %>
                   <tr>
                     <td class="font-semibold"><%= row.model %></td>
-                    <td><%= row.cv_accuracy %></td>
                     <td><%= row.test_accuracy %></td>
                     <td><%= row.precision %></td>
                     <td><%= row.recall %></td>
