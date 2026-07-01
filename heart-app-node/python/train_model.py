@@ -118,7 +118,7 @@ def main():
     ]
 
     artifact = {
-        "model_name":         "Optimized Random Forest",
+        "model_name":         "Random Forest",
         "numeric_cols":       NUMERIC_COLS,
         "categorical_cols":   CATEGORICAL_COLS,
         "selected_features":  selected_features,
