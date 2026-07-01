@@ -1,102 +1,87 @@
 /**
- * predictor.js
- * -------------
- * Pure JavaScript re-implementation of the trained scikit-learn pipeline:
- *   MinMaxScaler -> OneHotEncoder(drop="first") -> SelectKBest -> LogisticRegression
+ * predictor.js  (Random Forest)
+ * ----------------------------------------
+ * Pure JavaScript re-implementation of the trained scikit-learn pipeline
+ * matching CSM3601_Heart_Disease_Prediction.ipynb Phase 2 preprocessing:
+ *   pd.get_dummies(drop_first=True) -> MinMaxScaler (numeric only) ->
+ *   SelectKBest(k=10) -> Random Forest (majority vote of 100 trees)
  *
- * All the numbers (scaler min/max, one-hot categories, selected features,
- * logistic regression coefficients + intercept) come from model/model_artifact.json,
- * which was exported once by python/train_model.py.
- *
- * No Python is needed while the website is running - this file does the
- * exact same math by hand.
+ * All numbers come from model/model_artifact.json (exported by python/train_model.py).
+ * No Python needed at runtime.
  */
 
-const fs = require("fs");
+const fs   = require("fs");
 const path = require("path");
 
 const ARTIFACT_PATH = path.join(__dirname, "..", "model", "model_artifact.json");
-
 let artifact = null;
 
 function loadArtifact() {
-  if (!fs.existsSync(ARTIFACT_PATH)) {
-    return null;
-  }
-  const raw = fs.readFileSync(ARTIFACT_PATH, "utf-8");
-  artifact = JSON.parse(raw);
+  if (!fs.existsSync(ARTIFACT_PATH)) return null;
+  artifact = JSON.parse(fs.readFileSync(ARTIFACT_PATH, "utf-8"));
   return artifact;
 }
 
-function isModelLoaded() {
-  return artifact !== null;
+function isModelLoaded() { return artifact !== null; }
+function getMetadata()   { return artifact; }
+
+function traverseTree(node, features) {
+  if (node.leaf) return node.prediction;
+  const val = features[node.feature] !== undefined ? features[node.feature] : 0;
+  return val <= node.threshold
+    ? traverseTree(node.left,  features)
+    : traverseTree(node.right, features);
 }
 
-function getMetadata() {
-  return artifact;
-}
-
-/**
- * input: plain object keyed by raw feature names, e.g.
- *   { age: 63, sex: 1, cp: 0, trestbps: 145, chol: 233, fbs: 1,
- *     restecg: 2, thalach: 150, exang: 0, oldpeak: 2.3, slope: 2, ca: 0, thal: 2 }
- *
- * returns: { prediction: 0|1, probability: 0..1 }
- */
 function predict(input) {
-  if (!artifact) {
-    throw new Error("Model artifact not loaded. Run python/train_model.py first.");
-  }
+  if (!artifact) throw new Error("Model artifact not loaded. Run python/train_model.py first.");
 
-  const {
-    numeric_cols,
-    scaler,
-    categorical_cols,
-    categories,
-    passthrough_cols,
-    encoded_feature_names,
-    selected_feature_names,
-    coefficients,
-    intercept,
-  } = artifact;
+  const { numeric_cols, categorical_cols, scaler_stats, selected_features, rf_trees } = artifact;
 
-  // Build a map of every encoded feature -> its computed value
-  const encodedValues = {};
+  const encoded = {};
 
-  // 1. Numeric features: MinMaxScaler -> (x - min) / (max - min)
-  numeric_cols.forEach((col, i) => {
-    const min = scaler.data_min[i];
-    const max = scaler.data_max[i];
+  // 1. MinMaxScaler on numeric cols
+  numeric_cols.forEach((col) => {
+    const { data_min, data_max } = scaler_stats[col];
     const x = Number(input[col]);
-    const range = max - min;
-    encodedValues[col] = range === 0 ? 0 : (x - min) / range;
+    const range = data_max - data_min;
+    encoded[col] = range === 0 ? 0 : (x - data_min) / range;
   });
 
-  // 2. Categorical features: One-Hot Encoding with drop="first"
-  categorical_cols.forEach((col, idx) => {
-    const colInfo = categories[idx];
-    const rawValue = String(input[col]);
-    colInfo.kept_categories.forEach((cat) => {
-      const featureName = `${col}_${cat}`;
-      encodedValues[featureName] = rawValue === String(cat) ? 1 : 0;
+  // 2. Passthrough binary cols
+  ["sex", "fbs", "exang", "ca"].forEach((col) => {
+    encoded[col] = Number(input[col]);
+  });
+
+  // 3. One-hot encode categorical cols (drop_first=True, sorted string order)
+  const catCategories = {
+    cp:      ["0","1","2","3"],
+    restecg: ["0","1","2"],
+    slope:   ["0","1","2"],
+    thal:    ["0","1","2"],
+  };
+  categorical_cols.forEach((col) => {
+    const cats = catCategories[col];
+    const val  = String(input[col]);
+    cats.slice(1).forEach((cat) => {
+      encoded[`${col}_${cat}`] = val === cat ? 1 : 0;
     });
   });
 
-  // 3. Passthrough features (sex, fbs, exang, ca) - used as-is
-  passthrough_cols.forEach((col) => {
-    encodedValues[col] = Number(input[col]);
+  // 4. Build selected-feature vector
+  const featVec = {};
+  selected_features.forEach((f) => {
+    featVec[f] = encoded[f] !== undefined ? encoded[f] : 0;
   });
 
-  // 4. Build the SAME ordered vector the SelectKBest step picked, then
-  //    apply the logistic regression: z = w . x + b
-  let z = intercept;
-  selected_feature_names.forEach((featureName, i) => {
-    const value = encodedValues[featureName] !== undefined ? encodedValues[featureName] : 0;
-    z += coefficients[i] * value;
+  // 5. Random Forest majority vote
+  let votes = 0;
+  rf_trees.forEach((tree) => {
+    votes += traverseTree(tree, featVec);
   });
 
-  const probability = 1 / (1 + Math.exp(-z));
-  const prediction = probability >= 0.5 ? 1 : 0;
+  const probability = votes / rf_trees.length;
+  const prediction  = probability >= 0.5 ? 1 : 0;
 
   return { prediction, probability };
 }
